@@ -19,7 +19,7 @@ na_type_dict = {"node_id": "str", "map_uid": 'str', "tree_id": "str", "pid": "st
 url = "https://api.openai.com/v1/completions"
 headers = {'content-type': 'application/json',
            # 自己的key
-           'Authorization': 'Bearer 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'}
+           'Authorization': 'Bearer xxx'}
 
 # 本地VPN
 temp_proxy = {"https": "http://127.0.0.1:58591", "http": "http://127.0.0.1:58591"}

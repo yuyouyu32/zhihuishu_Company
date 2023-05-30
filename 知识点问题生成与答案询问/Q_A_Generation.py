@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 url = "https://api.openai.com/v1/completions"
 headers = {'content-type': 'application/json',
-           'Authorization': 'Bearer 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'}
+           'Authorization': 'Bearer xxx'}
 
 # 本地VPN
 temp_proxy = {"https": "http://127.0.0.1:7890", "http": "http://127.0.0.1:7890"}

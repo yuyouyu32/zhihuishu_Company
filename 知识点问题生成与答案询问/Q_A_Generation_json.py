@@ -7,7 +7,7 @@ import ast
 
 # url = "https://api.openai.com/v1/completions"
 # headers = {'content-type': 'application/json',
-#            'Authorization': 'Bearer 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'}
+#            'Authorization': 'Bearer xxx'}
 
 # # 本地VPN
 # temp_proxy = {"https": "http://127.0.0.1:7890", "http": "http://127.0.0.1:7890"}
