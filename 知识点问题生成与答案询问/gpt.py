@@ -1,11 +1,6 @@
 
 import requests
 import json
-import os
-
-# 目前需要设置代理才可以访问 api
-os.environ["HTTP_PROXY"] = "http://127.0.0.1:7890"
-os.environ["HTTPS_PROXY"] = "http://127.0.0.1:7890"
 
 def gpt(text):
     headers = {
