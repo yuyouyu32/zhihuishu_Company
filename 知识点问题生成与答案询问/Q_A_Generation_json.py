@@ -4,6 +4,7 @@ import json
 import requests
 from tqdm import tqdm
 import ast
+import time
 
 # url = "https://api.openai.com/v1/completions"
 # headers = {'content-type': 'application/json',
@@ -43,6 +44,7 @@ def get_gpt_res(text):
         "serviceCode": "SI_KG_PRODUCE",
         "text": text
     }
+    time.sleep(1)
     ret = requests.post("https://ai-platform-cloud-proxy.zhihuishu.com/ability/gpt/completions", data=json.dumps(param), headers=headers)
     return ret.json()['data'].strip()
 
@@ -114,49 +116,51 @@ def q_a_generator(row):
                 source = 1
     return A, source
 
-def generate_name_from_json(json_file_path, over_write=False):
+def generate_name_from_json(json_file_path):
     with open(json_file_path, 'r') as file:
         content = file.read()
         data = ast.literal_eval(content)
     cur_chaper_name = ''
     cur_know_name = ''
     cur_attr_1 = ''
-    for item in tqdm(data['data']):
-        if over_write and 'aliaName' in item:
-            continue
+    for item in tqdm(data):
+        skip_flag = False
+        if 'aliaName' in item and type(item['aliaName']) == list:
+            for temp_dict in item['aliaName']:
+                if temp_dict['sort'] == 1:
+                    skip_flag = True
+        if skip_flag: continue
         if item["level"] == 1:
             cur_chaper_name = item["knowledgeName"]
-            item['aliaName'] = []
             continue
         elif item["level"] == 2:
             if not cur_chaper_name: 
-                item['aliaName'] = []
                 continue
             cur_know_name = item['knowledgeName'] 
             new_row = {'章节': cur_chaper_name, '知识点': cur_know_name}    
         elif item["level"] == 3:
             if not cur_chaper_name or not cur_know_name: 
-                item['aliaName'] = []
                 continue
             cur_attr_1 = item['knowledgeName']
             new_row = {'章节': cur_chaper_name, '知识点': cur_know_name, '一级属性': cur_attr_1}
         elif item["level"] == 4:
             if not cur_chaper_name or not cur_know_name or not cur_attr_1:
-                item['aliaName'] = []
                 continue
-            new_row = {'章节': cur_chaper_name, '知识点': cur_know_name, '一级属性': cur_attr_1, '二级属性': item['title']}
+            new_row = {'章节': cur_chaper_name, '知识点': cur_know_name, '一级属性': cur_attr_1, '二级属性': item['knowledgeName']}
         else:
-            item['aliaName'] = []
             continue
         A, source = q_a_generator(new_row)
         temp_dict = {'Id': item['knowledgeId'], 'sort': 1, 'content': A, 'source': source}
-        item['aliaName'] = [temp_dict]
+        if type(item['aliaName']) == list:
+            item['aliaName'].append(temp_dict)
+        else:
+            item['aliaName'] = [temp_dict]
         with open(json_file_path, "w") as json_file:
             json.dump(data, json_file, ensure_ascii=False)
     return data
 
 if __name__ == '__main__':
     # 指定 json 文件的路径
-    json_file_path = './Data/response.json'
+    json_file_path = './Data/res.json'
     # 调用函数生成字符串并生成回答
-    new_data = generate_name_from_json(json_file_path, over_write=False)
+    new_data = generate_name_from_json(json_file_path)
